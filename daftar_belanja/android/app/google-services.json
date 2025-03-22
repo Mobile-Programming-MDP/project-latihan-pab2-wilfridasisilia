@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "324281304039",
+    "firebase_url": "https://frida-app-20af9-default-rtdb.firebaseio.com",
+    "project_id": "frida-app-20af9",
+    "storage_bucket": "frida-app-20af9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324281304039:android:6e911c8bbd3b1cf2d77342",
+        "android_client_info": {
+          "package_name": "com.example.daftar_belanja"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCR5HyX1CWPsRNzoKcFaakEIFYqs2pBMpU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
