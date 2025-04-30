@@ -1,7 +1,6 @@
 import 'package:fasum_app/screens/sign_in_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'add_post_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -25,9 +24,7 @@ Widget build(BuildContext context) {
       actions: [
         IconButton(
           onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => AddPostScreen()),
-    );
+            signOut(context);
           },
           icon: const Icon(Icons.logout),
         ),
