@@ -33,26 +33,24 @@ class DetailScreen extends StatefulWidget {
 class _DetailScreenState extends State<DetailScreen> {
   Future<void> openMap() async {
     final uri = Uri.parse(
-        "https://www.google.com/maps/search/?api=1&query=${widget.latitude},${widget.longitude}");
-    final success = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
+      "https://www.google.com/maps/search/?api=1&query=${widget.latitude},${widget.longitude}",
     );
+    final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!mounted) return;
     if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Tidak bisa membuka Google Map")));
+        const SnackBar(content: Text("Tidak bisa membuka Google Map")),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final createdAtFormatted =
-        DateFormat('dd MM yyyy, HH:mm').format(widget.createdAt);
+    final createdAtFormatted = DateFormat(
+      'dd MM yyyy, HH:mm',
+    ).format(widget.createdAt);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Detail Laporan"),
-      ),
+      appBar: AppBar(title: const Text("Detail Laporan")),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,10 +71,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   right: 12,
                   child: IconButton(
                     onPressed: () {},
-                    icon: const Icon(
-                      Icons.fullscreen,
-                      color: Colors.white,
-                    ),
+                    icon: const Icon(Icons.fullscreen, color: Colors.white),
                     tooltip: 'Lihat Gambar Penuh',
                     style: IconButton.styleFrom(backgroundColor: Colors.black),
                   ),
@@ -107,9 +102,10 @@ class _DetailScreenState extends State<DetailScreen> {
                                 Text(
                                   widget.category,
                                   style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
-                                )
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                             SizedBox(height: 8),
@@ -124,9 +120,10 @@ class _DetailScreenState extends State<DetailScreen> {
                                 Text(
                                   createdAtFormatted,
                                   style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
-                                )
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -148,10 +145,10 @@ class _DetailScreenState extends State<DetailScreen> {
                   Text(
                     widget.description,
                     style: const TextStyle(fontSize: 16),
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
