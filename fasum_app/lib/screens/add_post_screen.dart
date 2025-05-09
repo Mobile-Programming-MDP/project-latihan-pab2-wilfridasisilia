@@ -54,19 +54,18 @@ class _AddPostScreenState extends State<AddPostScreen> {
       builder: (BuildContext context) {
         return ListView(
           shrinkWrap: true,
-          children:
-              categories.map((category) {
-                return ListTile(
-                  title: Text(category),
-                  onTap: () {
-                    setState(() {
-                      _aiCategory =
-                          category; // Ganti AI category dengan pilihan user
-                    });
-                    Navigator.pop(context);
-                  },
-                );
-              }).toList(),
+          children: categories.map((category) {
+            return ListTile(
+              title: Text(category),
+              onTap: () {
+                setState(() {
+                  _aiCategory =
+                      category; // Ganti AI category dengan pilihan user
+                });
+                Navigator.pop(context);
+              },
+            );
+          }).toList(),
         );
       },
     );
@@ -127,8 +126,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
       //RequestOptions ro = const RequestOptions(apiVersion: 'v1');
       final model = GenerativeModel(
         model: 'gemini-1.5-flash',
-        apiKey:
-            'AIzaSyCa0D4uxTqm37BsFNKGcbgd18qwdJ-h75Y', //gunakan api key gemini anda
+        apiKey: 'AIzaSyBuTdPAMaOaqcTJvSKguWwOMPb9nAqHIVo',
+        //gunakan api key gemini anda
         //requestOptions: ro,
       );
       final imageBytes = await _image!.readAsBytes();
@@ -324,24 +323,23 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child:
-                    _image != null
-                        ? ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.file(
-                            _image!,
-                            height: 250,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                        : const Center(
-                          child: Icon(
-                            Icons.add_a_photo,
-                            size: 50,
-                            color: Colors.grey,
-                          ),
+                child: _image != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(
+                          _image!,
+                          height: 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
                         ),
+                      )
+                    : const Center(
+                        child: Icon(
+                          Icons.add_a_photo,
+                          size: 50,
+                          color: Colors.grey,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(height: 16),
@@ -430,21 +428,20 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 textStyle: const TextStyle(fontSize: 16),
                 backgroundColor: Colors.green,
               ),
-              child:
-                  _isUploading
-                      ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
+              child: _isUploading
+                  ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white,
                         ),
-                      )
-                      : const Text(
-                        'Post',
-                        style: TextStyle(color: Colors.white),
                       ),
+                    )
+                  : const Text(
+                      'Post',
+                      style: TextStyle(color: Colors.white),
+                    ),
             ),
           ],
         ),

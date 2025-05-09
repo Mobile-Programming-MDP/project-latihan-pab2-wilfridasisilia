@@ -5,6 +5,7 @@ import 'package:fasum_app/screens/add_post_screen.dart';
 import 'package:fasum_app/screens/detail_screen.dart';
 import 'package:fasum_app/screens/sign_in_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -17,10 +18,25 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? selectedCategory;
-  final List<String> categories = [
+  //ambil dari add_post_screen
+  List<String> categories = [
     'Jalan Rusak',
+    'Marka Pudar',
     'Lampu Mati',
+    'Trotoar Rusak',
+    'Rambu Rusak',
+    'Jembatan Rusak',
     'Sampah Menumpuk',
+    'Saluran Tersumbat',
+    'Sungai Tercemar',
+    'Sampah Sungai',
+    'Pohon Tumbang',
+    'Taman Rusak',
+    'Fasilitas Rusak',
+    'Pipa Bocor',
+    'Vandalisme',
+    'Banjir',
+    'Lainnya',
   ];
 
   String formatTime(DateTime dateTime) {
@@ -41,10 +57,10 @@ class _HomeScreenState extends State<HomeScreen> {
     await FirebaseAuth.instance.signOut();
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const SignInScreen()),
-    );
+        MaterialPageRoute(builder: (context) => const SignInScreen()));
   }
 
+  //ambil dari https://pastebin.com/8BXgdv3M
   void _showCategoryFilter() async {
     final result = await showModalBottomSheet<String?>(
       context: context,
@@ -62,19 +78,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 ListTile(
                   leading: const Icon(Icons.clear),
                   title: const Text('Semua Kategori'),
-                  onTap: () => Navigator.pop(context, null),
+                  onTap: () => Navigator.pop(
+                    context,
+                    null,
+                  ), // Null untuk memilih semua kategori
                 ),
                 const Divider(),
                 ...categories.map(
                   (category) => ListTile(
                     title: Text(category),
-                    trailing:
-                        selectedCategory == category
-                            ? Icon(
-                              Icons.check,
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                            : null,
+                    trailing: selectedCategory == category
+                        ? Icon(
+                            Icons.check,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        : null,
                     onTap: () => Navigator.pop(context, category),
                   ),
                 ),
@@ -84,10 +102,18 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
-
-    setState(() {
-      selectedCategory = result;
-    });
+    if (result != null) {
+      setState(() {
+        selectedCategory =
+            result; // Set kategori yang dipilih atau null untuk Semua Kategori
+      });
+    } else {
+      // Jika result adalah null, berarti memilih Semua Kategori
+      setState(() {
+        selectedCategory =
+            null; // Reset ke null untuk menampilkan semua kategori
+      });
+    }
   }
 
   @override
@@ -100,14 +126,13 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             onPressed: _showCategoryFilter,
             icon: const Icon(Icons.filter_list),
-            tooltip: "Filter Kategori",
           ),
           IconButton(
             onPressed: () {
               signOut(context);
             },
             icon: const Icon(Icons.logout),
-          ),
+          )
         ],
       ),
       body: RefreshIndicator(
@@ -115,73 +140,60 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {});
         },
         child: StreamBuilder(
-          stream:
-              FirebaseFirestore.instance
-                  .collection("posts")
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
+          stream: FirebaseFirestore.instance
+              .collection("posts")
+              .orderBy('createdAt', descending: true)
+              .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
 
-            final posts =
-                snapshot.data!.docs.where((doc) {
-                  final data = doc.data();
-                  final category = data['category'] ?? 'Lainnya';
-                  return selectedCategory == null ||
-                      selectedCategory == category;
-                }).toList();
+            final posts = snapshot.data!.docs.where((doc) {
+              final data = doc.data();
+              final category = data['category'] ?? 'Lainnya';
+              return selectedCategory == null || selectedCategory == category;
+            }).toList();
 
             if (posts.isEmpty) {
               return const Center(
-                child: Text('Tidak ada laporan untuk kategori ini!'),
+                child: Text("Tidak ada laporan untuk kategori ini!"),
               );
             }
 
+            //Script lengkap bagian ListView.builder
+            //https://pastebin.com/kSXM5mTX
             return ListView.builder(
               itemCount: posts.length,
               itemBuilder: (context, index) {
                 final data = posts[index].data();
                 final imageBase64 = data['image'];
                 final description = data['description'];
+                final createdAtStr = data['createdAt'];
                 final fullName = data['fullName'] ?? 'Anonim';
-
-                late final DateTime createdAt;
-                final rawCreatedAt = data['createdAt'];
-
-                // 🔧 Fix error FormatException
-                if (rawCreatedAt is Timestamp) {
-                  createdAt = rawCreatedAt.toDate();
-                } else if (rawCreatedAt is String) {
-                  try {
-                    createdAt = DateTime.parse(rawCreatedAt);
-                  } catch (e) {
-                    createdAt = DateTime.now(); // fallback
-                  }
-                } else {
-                  createdAt = DateTime.now(); // fallback
-                }
-
-                final heroTag =
+                final latitude = data['latitude'] ?? 0.0;
+                final longitude = data['longitude'] ?? 0.0;
+                final category = data['category'] ?? 'Lainnya';
+                final currentUser = FirebaseAuth.instance.currentUser;
+                final userId = data['userId'] ?? "";
+                //parse ke DateTime
+                final createdAt = DateTime.parse(createdAtStr);
+                String heroTag =
                     'fasum-image-${createdAt.millisecondsSinceEpoch}';
-
                 return InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (context) => DetailScreen(
-                              imageBase64: imageBase64,
-                              description: description,
-                              createdAt: createdAt,
-                              fullName: fullName,
-                              latitude: data['latitude'] ?? 0.0,
-                              longitude: data['longitude'] ?? 0.0,
-                              category: data['category'] ?? '',
-                              heroTag: heroTag,
-                            ),
+                        builder: (context) => DetailScreen(
+                            imageBase64: imageBase64,
+                            description: description,
+                            createdAt: createdAt,
+                            fullName: fullName,
+                            latitude: latitude,
+                            longitude: longitude,
+                            category: category,
+                            heroTag: heroTag),
                       ),
                     );
                   },
@@ -196,39 +208,154 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (imageBase64 != null)
                           ClipRRect(
                             borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(10),
-                            ),
-                            child: Image.memory(
-                              base64Decode(imageBase64),
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: 200,
-                            ),
+                                top: Radius.circular(10)),
+                            child: Image.memory(base64Decode(imageBase64),
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: 200),
                           ),
                         Padding(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                formatTime(createdAt),
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              Text(
-                                fullName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        formatTime(createdAt),
+                                        style: const TextStyle(
+                                            fontSize: 12, color: Colors.grey),
+                                      ),
+                                      Text(
+                                        fullName,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                    ],
+                                  ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      IconButton(
+                                          onPressed: () {},
+                                          icon: Icon(Icons.thumb_up)),
+                                      IconButton(
+                                          onPressed: () {},
+                                          icon: Icon(Icons.comment)),
+                                      if (currentUser != null &&
+                                          currentUser.uid == userId)
+                                        IconButton(
+                                          onPressed: () {
+                                            showModalBottomSheet(
+                                              context: context,
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.vertical(
+                                                  top: Radius.circular(24),
+                                                ),
+                                              ),
+                                              builder: (context) {
+                                                return SafeArea(
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      ListTile(
+                                                        leading: const Icon(
+                                                            Icons.edit),
+                                                        title:
+                                                            const Text('Edit'),
+                                                        onTap: () {
+                                                          Navigator.pop(
+                                                              context); //close the modal
+                                                          // Navigate to edit screen or implement edit functionality
+                                                        },
+                                                      ),
+                                                      ListTile(
+                                                        leading: const Icon(
+                                                            Icons.delete),
+                                                        title: const Text(
+                                                            'Delete'),
+                                                        onTap: () async {
+                                                          Navigator.pop(
+                                                              context);
+                                                          final confirmDelete =
+                                                              await showDialog<
+                                                                  bool>(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return AlertDialog(
+                                                                title: const Text(
+                                                                    'Konfirmasi'),
+                                                                content: const Text(
+                                                                    'Apakah Anda yakin ingin menghapus laporan ini?'),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed: () =>
+                                                                        Navigator.pop(
+                                                                            context,
+                                                                            false),
+                                                                    child: const Text(
+                                                                        'Tidak'),
+                                                                  ),
+                                                                  TextButton(
+                                                                    onPressed: () =>
+                                                                        Navigator.pop(
+                                                                            context,
+                                                                            true),
+                                                                    child:
+                                                                        const Text(
+                                                                            'Ya'),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            },
+                                                          );
+
+                                                          if (confirmDelete ==
+                                                                  true &&
+                                                              mounted) {
+                                                            // Implement delete functionality
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    "posts")
+                                                                .doc(
+                                                                    posts[index]
+                                                                        .id)
+                                                                .delete();
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                          icon: const Icon(Icons.more_vert),
+                                        )
+                                    ],
+                                  )
+                                ],
                               ),
                               const SizedBox(height: 6),
                               Text(
                                 description ?? '',
                                 style: const TextStyle(fontSize: 16),
-                              ),
+                              )
                             ],
                           ),
                         ),
@@ -244,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const AddPostScreen()),
+            MaterialPageRoute(builder: (context) => AddPostScreen()),
           );
         },
         child: const Icon(Icons.add),

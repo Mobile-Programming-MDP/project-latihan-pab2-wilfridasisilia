@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:fasum_app/screens/full_image_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,26 +32,29 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
+  //install dependensi url_launcher : flutter pub add url_launcher
   Future<void> openMap() async {
     final uri = Uri.parse(
-      "https://www.google.com/maps/search/?api=1&query=${widget.latitude},${widget.longitude}",
+        "https://www.google.com/maps/search/?api=1&query=${widget.latitude},${widget.longitude}");
+    final success = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
     );
-    final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!mounted) return;
     if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Tidak bisa membuka Google Map")),
-      );
+          const SnackBar(content: Text("Tidak bisa membuka Google Map")));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final createdAtFormatted = DateFormat(
-      'dd MM yyyy, HH:mm',
-    ).format(widget.createdAt);
+    final createdAtFormatted =
+        DateFormat('dd MM yyyy, HH:mm').format(widget.createdAt);
     return Scaffold(
-      appBar: AppBar(title: const Text("Detail Laporan")),
+      appBar: AppBar(
+        title: const Text("Detail Laporan"),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,8 +74,19 @@ class _DetailScreenState extends State<DetailScreen> {
                   top: 12,
                   right: 12,
                   child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.fullscreen, color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              FullImageScreen(imageBase64: widget.imageBase64),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.fullscreen,
+                      color: Colors.white,
+                    ),
                     tooltip: 'Lihat Gambar Penuh',
                     style: IconButton.styleFrom(backgroundColor: Colors.black),
                   ),
@@ -102,10 +117,9 @@ class _DetailScreenState extends State<DetailScreen> {
                                 Text(
                                   widget.category,
                                   style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                )
                               ],
                             ),
                             SizedBox(height: 8),
@@ -120,10 +134,9 @@ class _DetailScreenState extends State<DetailScreen> {
                                 Text(
                                   createdAtFormatted,
                                   style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                )
                               ],
                             ),
                           ],
@@ -132,11 +145,8 @@ class _DetailScreenState extends State<DetailScreen> {
                       //Kanan : icon map
                       IconButton(
                         onPressed: openMap,
-                        icon: const Icon(
-                          Icons.map,
-                          size: 38,
-                          color: Colors.lightGreen,
-                        ),
+                        icon: const Icon(Icons.map,
+                            size: 38, color: Colors.lightGreen),
                         tooltip: "Buka di Google Map",
                       ),
                     ],
@@ -146,9 +156,19 @@ class _DetailScreenState extends State<DetailScreen> {
                     widget.description,
                     style: const TextStyle(fontSize: 16),
                   ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Lokasi",
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "${widget.latitude}, ${widget.longitude}",
+                    style: const TextStyle(fontSize: 12),
+                  ),
                 ],
               ),
-            ),
+            )
           ],
         ),
       ),
