@@ -10,6 +10,9 @@
 .history
 .svn/
 .swiftpm/
+fasum-cloud/serviceAccountKey.json.json
+
+
 migrate_working_dir/
 
 # IntelliJ related
@@ -43,3 +46,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+echo "fasum-cloud/serviceAccountKey.json.json" >> .gitignore
+git add .gitignore
+git commit -m "Ignore secret file"
+
